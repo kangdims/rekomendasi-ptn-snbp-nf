@@ -1,4 +1,5 @@
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 # ==========================================
@@ -18,7 +19,95 @@ st.caption(
 st.divider()
 
 # ==========================================
-# 2. DATA MASTER 38 PROVINSI & PTN SNPMB
+# 2. DATA MASTER MAPEL TKA (SMA/MA & SMK)
+# ==========================================
+MAPEL_TKA = {
+    "SMA/MA": {
+        "wajib": ["Matematika", "Bahasa Indonesia", "Bahasa Inggris"],
+        "peminatan": [
+            "Matematika Lanjut",
+            "Fisika",
+            "Kimia",
+            "Biologi",
+            "Pendidikan Jasmani, Olahraga dan Kesehatan (PJOK)",
+            "Ekonomi",
+            "Geografi",
+            "Sosiologi",
+            "Sejarah",
+            "Antropologi",
+            "Pendidikan Pancasila",
+            "Pendidikan Kewarganegaraan (PKn)",
+            "Seni Budaya",
+            "Bahasa Indonesia Tingkat Lanjut",
+            "Bahasa Inggris Tingkat Lanjut",
+            "Bahasa Arab",
+            "Bahasa Jerman",
+            "Bahasa Prancis",
+            "Bahasa Jepang",
+            "Bahasa Korea",
+            "Bahasa Mandarin",
+        ],
+    },
+    "SMK": {
+        "wajib": ["Matematika", "Bahasa Indonesia", "Bahasa Inggris"],
+        "peminatan": [
+            "Agribisnis perikanan",
+            "Agribisnis tanaman",
+            "Agribisnis ternak",
+            "Agroteknologi pengolahan hasil pertanian",
+            "Akuntansi dan keuangan lembaga",
+            "Animasi",
+            "Broadcasting dan perfilman",
+            "Busana",
+            "Desain dan produksi kriya",
+            "Desain komunikasi visual",
+            "Desain permodelan dan informasi bangunan",
+            "Kecantikan dan spa",
+            "Kehutanan",
+            "Kimia analisis",
+            "Konstruksi dan perawatan bangunan sipil",
+            "Kuliner",
+            "Layanan kesehatan",
+            "Manajemen perkantoran dan layanan bisnis",
+            "Nautika kapal niaga",
+            "Nautika kapal penangkapan ikan",
+            "Pekerjaan sosial",
+            "Pemasaran",
+            "Pengembangan perangkat lunak dan gim",
+            "Perhotelan",
+            "Produk atau projek kreatif dan kewirausahaan",
+            "Seni pertunjukan",
+            "Seni rupa",
+            "Teknik elektronika",
+            "Teknik energi terbarukan",
+            "Teknik furnitur",
+            "Teknik geologi pertambangan",
+            "Teknik geospasial",
+            "Teknik jaringan komputer dan telekomunikasi",
+            "Teknik ketenagalistrikan",
+            "Teknik kimia industri",
+            "Teknik konstruksi dan perumahan",
+            "Teknik konstruksi kapal",
+            "Teknik laboratorium medik",
+            "Teknik logistik",
+            "Teknik mesin",
+            "Teknik otomotif",
+            "Teknik pengelasan dan fabrikasi logam",
+            "Teknik perawatan gedung",
+            "Teknik perminyakan",
+            "Teknik pesawat udara",
+            "Teknik tekstil",
+            "Teknik kapal niaga",
+            "Teknik kapal penangkap ikan",
+            "Teknologi farmasi",
+            "Usaha layanan pariwisata",
+            "Usaha pertanian terpadu.",
+        ],
+    },
+}
+
+# ==========================================
+# 3. DATA MASTER 38 PROVINSI & PTN SNPMB
 # ==========================================
 DATA_PTN_38_PROVINSI = {
     "Aceh": [
@@ -195,9 +284,11 @@ DATA_PTN_38_PROVINSI = {
 }
 
 # ==========================================
-# 3. SIDEBAR: PROFIL SEKOLAH & ALUMNI
+# 4. SIDEBAR: PROFIL SEKOLAH & ALUMNI
 # ==========================================
 st.sidebar.header("🏫 Data Sekolah & Alumni")
+
+jenjang_sekolah = st.sidebar.selectbox("Jenjang Sekolah", ["SMA/MA", "SMK"], index=0)
 
 akreditasi_sekolah = st.sidebar.selectbox(
     "Akreditasi Sekolah", ["A (Unggul)", "B (Baik)", "C (Cukup)"], index=0
@@ -223,97 +314,90 @@ is_commuter = st.sidebar.checkbox(
 )
 
 # ==========================================
-# 4. AREA FORM UTAMA (TABS)
+# 5. AREA FORM UTAMA (TABS)
 # ==========================================
 tab1, tab2, tab3 = st.tabs(
-    ["📚 Nilai Rapor (Sem 1-5)", "🎯 Target PTN 38 Provinsi", "🎨 Portofolio Karya"]
+    ["📚 Nilai Rapor & TKA", "🎯 Target PTN 38 Provinsi", "🎨 Portofolio Karya"]
 )
 
-# --- TAB 1: INPUT NILAI RAPOR SEMESTER 1 - 5 ---
-# --- TAB 1: INPUT NILAI RAPOR SEMESTER 1 - 5 ---
+# --- TAB 1: INPUT NILAI RAPOR SEMESTER 1 - 5 & MAPEL TKA ---
 with tab1:
-  st.subheader("Input Rata-Rata Nilai Rapor Semester 1 s/d 5")
-  st.caption(
-      "Masukkan nilai rata-rata pengetahuan untuk seluruh mata pelajaran per"
-      " semester."
-  )
+    st.subheader("Input Rata-Rata Nilai Rapor Semester 1 s/d 5")
+    st.caption("Masukkan nilai rata-rata pengetahuan untuk seluruh mata pelajaran per semester.")
 
-  c1, c2, c3, c4, c5 = st.columns(5)
-  with c1:
-    sem1 = st.number_input(
-        "Semester 1", min_value=0.0, max_value=100.0, value=83.0, step=0.5
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+        sem1 = st.number_input("Semester 1", min_value=0.0, max_value=100.0, value=83.0, step=0.5)
+    with c2:
+        sem2 = st.number_input("Semester 2", min_value=0.0, max_value=100.0, value=84.0, step=0.5)
+    with c3:
+        sem3 = st.number_input("Semester 3", min_value=0.0, max_value=100.0, value=85.5, step=0.5)
+    with c4:
+        sem4 = st.number_input("Semester 4", min_value=0.0, max_value=100.0, value=87.0, step=0.5)
+    with c5:
+        sem5 = st.number_input("Semester 5", min_value=0.0, max_value=100.0, value=88.5, step=0.5)
+
+    rata_sem_1_5 = (sem1 + sem2 + sem3 + sem4 + sem5) / 5.0
+    st.info(f"📈 **Rata-Rata Rapor Umum (Sem 1-5):** `{rata_sem_1_5:.2f}`")
+
+    # Visualisasi Plotly Tren Nilai Rapor
+    sem_labels = ["Semester 1", "Semester 2", "Semester 3", "Semester 4", "Semester 5"]
+    sem_values = [sem1, sem2, sem3, sem4, sem5]
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=sem_labels,
+            y=sem_values,
+            mode="lines+markers+text",
+            text=[f"{v:.1f}" for v in sem_values],
+            textposition="top center",
+            line=dict(color="#1E3A8A", width=3, shape="spline"),
+            marker=dict(size=10, color="#FBBF24", line=dict(width=2, color="#1E3A8A")),
+            name="Nilai Rapor",
+        )
     )
-  with c2:
-    sem2 = st.number_input(
-        "Semester 2", min_value=0.0, max_value=100.0, value=84.0, step=0.5
+    min_y = max(0, min(sem_values) - 5)
+    fig.update_layout(
+        title="<b>Grafik Tren Kenaikan Nilai Rapor (Semester 1–5)</b>",
+        xaxis_title="Semester",
+        yaxis_title="Rata-Rata Nilai",
+        yaxis=dict(range=[min_y, 100]),
+        height=320,
+        margin=dict(l=20, r=20, t=50, b=20),
+        hovermode="x unified",
+        template="plotly_white",
     )
-  with c3:
-    sem3 = st.number_input(
-        "Semester 3", min_value=0.0, max_value=100.0, value=85.5, step=0.5
-    )
-  with c4:
-    sem4 = st.number_input(
-        "Semester 4", min_value=0.0, max_value=100.0, value=87.0, step=0.5
-    )
-  with c5:
-    sem5 = st.number_input(
-        "Semester 5", min_value=0.0, max_value=100.0, value=88.5, step=0.5
-    )
+    st.plotly_chart(fig, use_container_width=True)
 
-  rata_sem_1_5 = (sem1 + sem2 + sem3 + sem4 + sem5) / 5.0
-  st.info(f"📈 **Rata-Rata Rapor Umum (Sem 1-5):** `{rata_sem_1_5:.2f}`")
+    st.divider()
 
-  # ==========================================
-  # VISUALISASI GRAFIK TREN RAPOR (PLOTLY)
-  # ==========================================
-  sem_labels = [
-      "Semester 1",
-      "Semester 2",
-      "Semester 3",
-      "Semester 4",
-      "Semester 5",
-  ]
-  sem_values = [sem1, sem2, sem3, sem4, sem5]
+    st.subheader(f"Mata Pelajaran TKA / Peminatan ({jenjang_sekolah})")
+    st.caption("Daftar mata pelajaran disesuaikan otomatis dengan jenjang yang dipilih pada sidebar.")
 
-  # Pembuatan Grafik Plotly Interaktif
-  fig = go.Figure()
+    daftar_peminatan = MAPEL_TKA[jenjang_sekolah]["peminatan"]
 
-  fig.add_trace(
-      go.Scatter(
-          x=sem_labels,
-          y=sem_values,
-          mode="lines+markers+text",
-          text=[f"{v:.1f}" for v in sem_values],
-          textposition="top center",
-          line=dict(color="#1E3A8A", width=3, shape="spline"),
-          marker=dict(size=10, color="#FBBF24", line=dict(width=2, color="#1E3A8A")),
-          name="Nilai Rapor",
-      )
-  )
+    col_m1, col_m2 = st.columns(2)
+    with col_m1:
+        mapel_1 = st.selectbox("Mapel Peminatan 1", daftar_peminatan, index=0)
+        n_mapel_1 = st.number_input(
+            f"Nilai Rata-Rata {mapel_1}",
+            min_value=0.0,
+            max_value=100.0,
+            value=90.0,
+            step=0.5,
+        )
+    with col_m2:
+        idx_default_2 = 1 if len(daftar_peminatan) > 1 else 0
+        mapel_2 = st.selectbox("Mapel Peminatan 2", daftar_peminatan, index=idx_default_2)
+        n_mapel_2 = st.number_input(
+            f"Nilai Rata-Rata {mapel_2}",
+            min_value=0.0,
+            max_value=100.0,
+            value=88.0,
+            step=0.5,
+        )
 
-  # Menentukan batas sumbu Y dinamis berdasarkan nilai terkecil
-  min_y = max(0, min(sem_values) - 5)
-
-  fig.update_layout(
-      title="<b>Grafik Tren Kenaikan Nilai Rapor (Semester 1–5)</b>",
-      xaxis_title="Semester",
-      yaxis_title="Rata-Rata Nilai",
-      yaxis=dict(range=[min_y, 100]),
-      height=350,
-      margin=dict(l=20, r=20, t=50, b=20),
-      hovermode="x unified",
-      template="plotly_white",
-  )
-
-  # Tampilkan di Streamlit
-  st.plotly_chart(fig, use_container_width=True)
-
-  st.divider()
-
-  # Input Mapel Peminatan
-  st.subheader("Mata Pelajaran Peminatan Utama")
-  col_m1, col_m2 = st.columns(2)
-    
 # --- TAB 2: PILIH PROVINSI & PTN TARGET ---
 with tab2:
     st.subheader("Pemilihan PTN & Prodi Berdasarkan Provinsi SNPMB")
@@ -383,7 +467,7 @@ with tab3:
         )
 
 # ==========================================
-# 5. EXECUTION ENGINE & KALKULASI SKOR
+# 6. EXECUTION ENGINE & KALKULASI SKOR
 # ==========================================
 st.divider()
 
@@ -393,25 +477,25 @@ if st.button("🚀 Jalankan Analisis Kelolosan SNBP", type="primary", use_contai
     n_pendukung = (n_mapel_1 + n_mapel_2) / 2.0
     s_rapor = (0.50 * rata_sem_1_5) + (0.50 * n_pendukung)
 
-    # 2. Koreksi Nilai KKM Rapor (Bonus jika rata-rata jauh di atas KKM)
+    # 2. Koreksi Margin KKM
     margin_kkm = max(0.0, rata_sem_1_5 - kkm_rapor)
 
-    # 3. Kalkulasi Skor Berkas (Jika ada Portofolio, Bobot 50% Rapor : 50% Porto)
+    # 3. Kalkulasi Skor Berkas (Jika ada Portofolio: 50% Rapor : 50% Porto)
     if butuh_portofolio:
         s_berkas = (0.50 * s_rapor) + (0.50 * skor_portofolio)
     else:
         s_berkas = s_rapor
 
-    # 4. Formulasi Indeks Alumni (Akreditasi + Sebaran Alumni)
+    # 4. Formulasi Indeks Alumni
     bobot_akreditasi = (
         25.0 if "A" in akreditasi_sekolah else (15.0 if "B" in akreditasi_sekolah else 5.0)
     )
     indeks_alumni = min(100.0, (sebaran_alumni * 15.0) + bobot_akreditasi + (margin_kkm * 1.5))
 
-    # 5. Keketatan Default Assumed Score (80.0)
+    # 5. Keketatan Score
     keketatan_score = 75.0
 
-    # 6. SKOR TOTAL AKHIR (50% Berkas + 35% Alumni + 15% Keketatan)
+    # 6. SKOR TOTAL AKHIR
     s_total = (0.50 * s_berkas) + (0.35 * indeks_alumni) + (0.15 * keketatan_score)
 
     # Output Metric Cards
@@ -424,7 +508,7 @@ if st.button("🚀 Jalankan Analisis Kelolosan SNBP", type="primary", use_contai
 
     st.divider()
 
-    # Dynamic Risk Category Display
+    # Dynamic Risk Category
     if s_total >= 85.0:
         st.success(
             f"🟢 **SAFE ZONE (Sangat Aman):** Peluang kelolosan tinggi untuk prodi **{prodi_terpilih} ({jenjang_prodi})** di **{ptn_terpilih}**."
