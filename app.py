@@ -230,69 +230,90 @@ tab1, tab2, tab3 = st.tabs(
 )
 
 # --- TAB 1: INPUT NILAI RAPOR SEMESTER 1 - 5 ---
+# --- TAB 1: INPUT NILAI RAPOR SEMESTER 1 - 5 ---
 with tab1:
-    st.subheader("Input Rata-Rata Nilai Rapor Semester 1 s/d 5")
-    st.caption("Masukkan nilai rata-rata pengetahuan untuk seluruh mata pelajaran per semester.")
+  st.subheader("Input Rata-Rata Nilai Rapor Semester 1 s/d 5")
+  st.caption(
+      "Masukkan nilai rata-rata pengetahuan untuk seluruh mata pelajaran per"
+      " semester."
+  )
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-    with c1:
-        sem1 = st.number_input(
-            "Semester 1", min_value=0.0, max_value=100.0, value=83.0, step=0.5
-        )
-    with c2:
-        sem2 = st.number_input(
-            "Semester 2", min_value=0.0, max_value=100.0, value=84.0, step=0.5
-        )
-    with c3:
-        sem3 = st.number_input(
-            "Semester 3", min_value=0.0, max_value=100.0, value=85.5, step=0.5
-        )
-    with c4:
-        sem4 = st.number_input(
-            "Semester 4", min_value=0.0, max_value=100.0, value=87.0, step=0.5
-        )
-    with c5:
-        sem5 = st.number_input(
-            "Semester 5", min_value=0.0, max_value=100.0, value=88.5, step=0.5
-        )
+  c1, c2, c3, c4, c5 = st.columns(5)
+  with c1:
+    sem1 = st.number_input(
+        "Semester 1", min_value=0.0, max_value=100.0, value=83.0, step=0.5
+    )
+  with c2:
+    sem2 = st.number_input(
+        "Semester 2", min_value=0.0, max_value=100.0, value=84.0, step=0.5
+    )
+  with c3:
+    sem3 = st.number_input(
+        "Semester 3", min_value=0.0, max_value=100.0, value=85.5, step=0.5
+    )
+  with c4:
+    sem4 = st.number_input(
+        "Semester 4", min_value=0.0, max_value=100.0, value=87.0, step=0.5
+    )
+  with c5:
+    sem5 = st.number_input(
+        "Semester 5", min_value=0.0, max_value=100.0, value=88.5, step=0.5
+    )
 
-    rata_sem_1_5 = (sem1 + sem2 + sem3 + sem4 + sem5) / 5.0
-    st.info(f"📈 **Rata-Rata Rapor Umum (Sem 1-5):** `{rata_sem_1_5:.2f}`")
+  rata_sem_1_5 = (sem1 + sem2 + sem3 + sem4 + sem5) / 5.0
+  st.info(f"📈 **Rata-Rata Rapor Umum (Sem 1-5):** `{rata_sem_1_5:.2f}`")
 
-    st.subheader("Mata Pelajaran Peminatan Utama")
-    col_m1, col_m2 = st.columns(2)
-    list_mapel = [
-        "Matematika Lanjut",
-        "Informatika",
-        "Fisika",
-        "Kimia",
-        "Biologi",
-        "Sosiologi",
-        "Ekonomi",
-        "Geografi",
-        "Bahasa Inggris Lanjut",
-        "Seni Rupa",
-        "PJOK",
-    ]
-    with col_m1:
-        mapel_1 = st.selectbox("Mapel Peminatan 1", list_mapel, index=0)
-        n_mapel_1 = st.number_input(
-            f"Nilai Rata-Rata {mapel_1}",
-            min_value=0.0,
-            max_value=100.0,
-            value=90.0,
-            step=0.5,
-        )
-    with col_m2:
-        mapel_2 = st.selectbox("Mapel Peminatan 2", list_mapel, index=1)
-        n_mapel_2 = st.number_input(
-            f"Nilai Rata-Rata {mapel_2}",
-            min_value=0.0,
-            max_value=100.0,
-            value=88.0,
-            step=0.5,
-        )
+  # ==========================================
+  # VISUALISASI GRAFIK TREN RAPOR (PLOTLY)
+  # ==========================================
+  sem_labels = [
+      "Semester 1",
+      "Semester 2",
+      "Semester 3",
+      "Semester 4",
+      "Semester 5",
+  ]
+  sem_values = [sem1, sem2, sem3, sem4, sem5]
 
+  # Pembuatan Grafik Plotly Interaktif
+  fig = go.Figure()
+
+  fig.add_trace(
+      go.Scatter(
+          x=sem_labels,
+          y=sem_values,
+          mode="lines+markers+text",
+          text=[f"{v:.1f}" for v in sem_values],
+          textposition="top center",
+          line=dict(color="#1E3A8A", width=3, shape="spline"),
+          marker=dict(size=10, color="#FBBF24", line=dict(width=2, color="#1E3A8A")),
+          name="Nilai Rapor",
+      )
+  )
+
+  # Menentukan batas sumbu Y dinamis berdasarkan nilai terkecil
+  min_y = max(0, min(sem_values) - 5)
+
+  fig.update_layout(
+      title="<b>Grafik Tren Kenaikan Nilai Rapor (Semester 1–5)</b>",
+      xaxis_title="Semester",
+      yaxis_title="Rata-Rata Nilai",
+      yaxis=dict(range=[min_y, 100]),
+      height=350,
+      margin=dict(l=20, r=20, t=50, b=20),
+      hovermode="x unified",
+      template="plotly_white",
+  )
+
+  # Tampilkan di Streamlit
+  st.plotly_chart(fig, use_container_width=True)
+
+  st.divider()
+
+  # Input Mapel Peminatan
+  st.subheader("Mata Pelajaran Peminatan Utama")
+  col_m1, col_m2 = st.columns(2)
+    
 # --- TAB 2: PILIH PROVINSI & PTN TARGET ---
 with tab2:
     st.subheader("Pemilihan PTN & Prodi Berdasarkan Provinsi SNPMB")
