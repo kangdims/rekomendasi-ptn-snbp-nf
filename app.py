@@ -14,14 +14,14 @@ from reportlab.platypus import HRFlowable, Paragraph, SimpleDocTemplate, Spacer,
 # 1. KONFIGURASI HALAMAN UTAMA
 # ==========================================
 st.set_page_config(
-    page_title="Simulator SNBP - Master PTN & ITB Special Engine",
+    page_title="Simulator SNBP - Master PTN & Automatic Lookup Engine",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 st.title("🎓 Simulator Rekomendasi PTN & Vokasi SNBP")
-st.caption("Analisis Kelolosan SNBP Kurikulum Merdeka — Terintegrasi PTN 38 Provinsi & ITB Special Engine")
+st.caption("Analisis Kelolosan SNBP Kurikulum Merdeka — Auto-Lookup PTN, Prodi, Mapel Pendukung, & Daya Tampung")
 st.divider()
 
 # ==========================================
@@ -54,52 +54,80 @@ with col_p4:
 st.divider()
 
 # ==========================================
-# 3. DATA MASTER MAPEL TKA (SMA/MA & SMK)
+# 3. DATA MASTER PROVINSI, PTN, PRODI, STRATA & DAYA TAMPUNG
 # ==========================================
-MAPEL_TKA = {
-    "SMA/MA": [
-        "Matematika Lanjut", "Fisika", "Kimia", "Biologi",
-        "Pendidikan Jasmani, Olahraga dan Kesehatan (PJOK)", "Ekonomi", "Geografi",
-        "Sosiologi", "Sejarah", "Antropologi", "Pendidikan Pancasila", "Pendidikan Kewarganegaraan (PKn)",
-        "Seni Budaya", "Bahasa Indonesia Tingkat Lanjut", "Bahasa Inggris Tingkat Lanjut",
-        "Bahasa Arab", "Bahasa Jerman", "Bahasa Prancis", "Bahasa Jepang", "Bahasa Korea", "Bahasa Mandarin",
-    ],
-    "SMK": [
-        "Agribisnis perikanan", "Agribisnis tanaman", "Agribisnis ternak", "Agroteknologi pengolahan hasil pertanian",
-        "Akuntansi dan keuangan lembaga", "Animasi", "Broadcasting dan perfilman", "Busana",
-        "Desain dan produksi kriya", "Desain komunikasi visual", "Desain permodelan dan informasi bangunan",
-        "Kecantikan dan spa", "Kehutanan", "Kimia analisis", "Konstruksi dan perawatan bangunan sipil",
-        "Kuliner", "Layanan kesehatan", "Manajemen perkantoran dan layanan bisnis", "Nautika kapal niaga",
-        "Nautika kapal penangkapan ikan", "Pekerjaan sosial", "Pemasaran", "Pengembangan perangkat lunak dan gim",
-        "Perhotelan", "Produk atau projek kreatif dan kewirausahaan", "Seni pertunjukan", "Seni rupa",
-        "Teknik elektronika", "Teknik energi terbarukan", "Teknik furnitur", "Teknik geologi pertambangan",
-        "Teknik geospasial", "Teknik jaringan komputer dan telekomunikasi", "Teknik ketenagalistrikan",
-        "Teknik kimia industri", "Teknik konstruksi dan perumahan", "Teknik konstruksi kapal",
-        "Teknik laboratorium medik", "Teknik logistik", "Teknik mesin", "Teknik otomotif",
-        "Teknik pengelasan dan fabrikasi logam", "Teknik perawatan gedung", "Teknik perminyakan",
-        "Teknik pesawat udara", "Teknik tekstil", "Teknik kapal niaga", "Teknik kapal penangkap ikan",
-        "Teknologi farmasi", "Usaha layanan pariwisata", "Usaha pertanian terpadu.",
-    ],
+DATA_MASTER_PTN_PRODI = {
+    "Jawa Barat": {
+        "Institut Teknologi Bandung (ITB)": {
+            "STEI-K (Komputasi)": {"strata": "S1", "daya_tampung": 120, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "STEI-R (Rekayasa)": {"strata": "S1", "daya_tampung": 150, "mapel_1": "Matematika Lanjut", "mapel_2": "Fisika", "porto": False},
+            "FTTM (Pertambangan & Perminyakan)": {"strata": "S1", "daya_tampung": 160, "mapel_1": "Matematika Lanjut", "mapel_2": "Fisika", "porto": False},
+            "FTMD (Mesin & Dirgantara)": {"strata": "S1", "daya_tampung": 140, "mapel_1": "Matematika Lanjut", "mapel_2": "Fisika", "porto": False},
+            "FTSL (Sipil & Lingkungan)": {"strata": "S1", "daya_tampung": 150, "mapel_1": "Matematika Lanjut", "mapel_2": "Fisika", "porto": False},
+            "FSRD (Seni Rupa & Desain)": {"strata": "S1", "daya_tampung": 110, "mapel_1": "Seni Budaya", "mapel_2": "Informatika", "porto": True},
+            "SBM (Bisnis & Manajemen)": {"strata": "S1", "daya_tampung": 84, "mapel_1": "Ekonomi", "mapel_2": "Matematika Lanjut", "porto": False},
+        },
+        "Universitas Indonesia (UI)": {
+            "Teknik Informatika": {"strata": "S1", "daya_tampung": 60, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "Sistem Informasi": {"strata": "S1", "daya_tampung": 50, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "Manajemen": {"strata": "S1", "daya_tampung": 90, "mapel_1": "Ekonomi", "mapel_2": "Matematika Lanjut", "porto": False},
+            "Ilmu Hukum": {"strata": "S1", "daya_tampung": 110, "mapel_1": "Sosiologi", "mapel_2": "Pendidikan Pancasila", "porto": False},
+        },
+        "Universitas Padjadjaran (UNPAD)": {
+            "Teknik Informatika": {"strata": "S1", "daya_tampung": 40, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "Kedokteran": {"strata": "S1", "daya_tampung": 70, "mapel_1": "Biologi", "mapel_2": "Kimia", "porto": False},
+            "Ilmu Komunikasi": {"strata": "S1", "daya_tampung": 65, "mapel_1": "Sosiologi", "mapel_2": "Bahasa Indonesia Tingkat Lanjut", "porto": False},
+        },
+        "Politeknik Negeri Jakarta (PNJ)": {
+            "D4 Teknik Informatika": {"strata": "D4", "daya_tampung": 48, "mapel_1": "Informatika", "mapel_2": "Matematika Lanjut", "porto": False},
+            "D3 Teknik Elektronika": {"strata": "D3", "daya_tampung": 32, "mapel_1": "Fisika", "mapel_2": "Matematika Lanjut", "porto": False},
+            "D4 Desain Grafis": {"strata": "D4", "daya_tampung": 36, "mapel_1": "Seni Budaya", "mapel_2": "Informatika", "porto": True},
+        },
+        "IPB University": {
+            "D4 Teknologi Rekayasa Komputer (SV)": {"strata": "D4", "daya_tampung": 80, "mapel_1": "Informatika", "mapel_2": "Matematika Lanjut", "porto": False},
+            "S1 Kedokteran Hewan": {"strata": "S1", "daya_tampung": 60, "mapel_1": "Biologi", "mapel_2": "Kimia", "porto": False},
+        }
+    },
+    "DKI Jakarta": {
+        "Universitas Negeri Jakarta (UNJ)": {
+            "Pendidikan Ilmu Komputer": {"strata": "S1", "daya_tampung": 45, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "Desain Komunikasi Visual": {"strata": "S1", "daya_tampung": 35, "mapel_1": "Seni Budaya", "mapel_2": "Informatika", "porto": True},
+            "Pendidikan Jasmani & Kesehatan": {"strata": "S1", "daya_tampung": 50, "mapel_1": "Pendidikan Jasmani, Olahraga dan Kesehatan (PJOK)", "mapel_2": "Biologi", "porto": True},
+        },
+        "UPN Veteran Jakarta (UPNVJ)": {
+            "S1 Informatika": {"strata": "S1", "daya_tampung": 72, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "S1 Kedokteran": {"strata": "S1", "daya_tampung": 50, "mapel_1": "Biologi", "mapel_2": "Kimia", "porto": False},
+            "D4 Sistem Informasi": {"strata": "D4", "daya_tampung": 40, "mapel_1": "Informatika", "mapel_2": "Matematika Lanjut", "porto": False},
+        }
+    },
+    "DI Yogyakarta": {
+        "Universitas Gadjah Mada (UGM)": {
+            "Teknologi Informasi": {"strata": "S1", "daya_tampung": 55, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "Kedokteran": {"strata": "S1", "daya_tampung": 53, "mapel_1": "Biologi", "mapel_2": "Kimia", "porto": False},
+            "Manajemen & Kebijakan Publik": {"strata": "S1", "daya_tampung": 40, "mapel_1": "Sosiologi", "mapel_2": "Ekonomi", "porto": False},
+        }
+    },
+    "Jawa Timur": {
+        "Institut Teknologi Sepuluh Nopember (ITS)": {
+            "Teknik Informatika": {"strata": "S1", "daya_tampung": 90, "mapel_1": "Matematika Lanjut", "mapel_2": "Informatika", "porto": False},
+            "Teknik Sipil": {"strata": "S1", "daya_tampung": 60, "mapel_1": "Matematika Lanjut", "mapel_2": "Fisika", "porto": False},
+        },
+        "Universitas Airlangga (UNAIR)": {
+            "Kedokteran": {"strata": "S1", "daya_tampung": 75, "mapel_1": "Biologi", "mapel_2": "Kimia", "porto": False},
+            "Farmasi": {"strata": "S1", "daya_tampung": 70, "mapel_1": "Kimia", "mapel_2": "Biologi", "porto": False},
+        }
+    }
 }
 
-# ==========================================
-# 4. DATA MASTER FAKULTAS ITB
-# ==========================================
-DATA_ITB_FAKULTAS = {
-    "STEI-K (Komputasi)": {"strata": "S1", "daya_tampung": 120, "porto": False},
-    "STEI-R (Rekayasa)": {"strata": "S1", "daya_tampung": 150, "porto": False},
-    "FTTM (Pertambangan & Perminyakan)": {"strata": "S1", "daya_tampung": 160, "porto": False},
-    "FTMD (Mesin & Dirgantara)": {"strata": "S1", "daya_tampung": 140, "porto": False},
-    "FTSL (Sipil & Lingkungan)": {"strata": "S1", "daya_tampung": 150, "porto": False},
-    "FMIPA (Matematika & IPA)": {"strata": "S1", "daya_tampung": 190, "porto": False},
-    "SITH (Ilmu & Tek. Hayati)": {"strata": "S1", "daya_tampung": 190, "porto": False},
-    "FITB (Kebumian)": {"strata": "S1", "daya_tampung": 130, "porto": False},
-    "FSRD (Seni Rupa & Desain)": {"strata": "S1", "daya_tampung": 110, "porto": True},
-    "SBM (Bisnis & Manajemen)": {"strata": "S1", "daya_tampung": 84, "porto": False},
-}
+MAPEL_TKA_LIST = [
+    "Matematika Lanjut", "Fisika", "Kimia", "Biologi",
+    "Pendidikan Jasmani, Olahraga dan Kesehatan (PJOK)", "Ekonomi", "Geografi",
+    "Sosiologi", "Sejarah", "Antropologi", "Pendidikan Pancasila", "Pendidikan Kewarganegaraan (PKn)",
+    "Seni Budaya", "Bahasa Indonesia Tingkat Lanjut", "Bahasa Inggris Tingkat Lanjut"
+]
 
 # ==========================================
-# 5. FUNGSI GENERATOR PDF LAPORAN
+# 4. FUNGSI GENERATOR PDF LAPORAN
 # ==========================================
 def generate_pdf_report(nama_siswa, sekolah, provinsi_sekolah, ptn_target, prodi_target, strata, s_rapor, s_total, status_zone, catatan_snbp):
     buffer = io.BytesIO()
@@ -130,13 +158,10 @@ def generate_pdf_report(nama_siswa, sekolah, provinsi_sekolah, ptn_target, prodi
     bold_style = ParagraphStyle('Bld', parent=normal_style, fontName='Helvetica-Bold')
     
     story = []
-    
-    # Header Dokumen
     story.append(Paragraph("<b>BIMBINGAN BELAJAR NURUL FIKRI</b>", title_style))
     story.append(Paragraph("LAPORAN HASIL REKOMENDASI & ANALISIS KELOLOSAN SNBP", sub_style))
     story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#1E3A8A'), spaceAfter=15))
     
-    # Tabel Data Identitas & Hasil
     table_data = [
         [Paragraph("<b>Nama Siswa</b>", bold_style), Paragraph(nama_siswa, normal_style)],
         [Paragraph("<b>Sekolah Asal</b>", bold_style), Paragraph(f"{sekolah} ({provinsi_sekolah})", normal_style)],
@@ -157,13 +182,11 @@ def generate_pdf_report(nama_siswa, sekolah, provinsi_sekolah, ptn_target, prodi
     story.append(t)
     story.append(Spacer(1, 15))
     
-    # Catatan & Rekomendasi Konselor
     story.append(Paragraph("<b>Rekomendasi & Catatan Aturan SNBP:</b>", ParagraphStyle('RecHeader', parent=bold_style, textColor=colors.HexColor('#1E3A8A'))))
     story.append(Spacer(1, 5))
     story.append(Paragraph(catatan_snbp, normal_style))
     story.append(Spacer(1, 30))
     
-    # Tanda Tangan Konselor
     ttd_data = [
         [Paragraph("", normal_style), Paragraph("Konselor Bimbingan SNBP", bold_style)],
         [Paragraph("", normal_style), Spacer(1, 40)],
@@ -178,12 +201,58 @@ def generate_pdf_report(nama_siswa, sekolah, provinsi_sekolah, ptn_target, prodi
     return buffer.getvalue()
 
 # ==========================================
-# 6. FORM TABS UTAMA (2 TABS SAJA)
+# 5. FORM TABS UTAMA
 # ==========================================
-tab1, tab2 = st.tabs(["📚 Nilai Rapor, TKA & Portofolio", "🎯 Target PTN / ITB"])
+tab1, tab2 = st.tabs(["🎯 Pemilihan PTN Target & Auto-Lookup", "📚 Nilai Rapor, TKA & Portofolio"])
 
-# --- TAB 1: NILAI RAPOR, TKA, DAN INTEGRASI PORTOFOLIO ---
+# --- TAB 1: CASCADING AUTO-LOOKUP TARGET PTN & PRODI ---
 with tab1:
+    st.markdown("### Pemilihan PTN Target Berdasarkan Provinsi")
+    st.caption("Sistem akan menyaring nama PTN, Program Studi, Strata, Daya Tampung, dan Mapel Peminatan secara otomatis.")
+
+    col_target_1, col_target_2, col_target_3 = st.columns(3)
+
+    with col_target_1:
+        # 1. Pilih Provinsi Target
+        provinsi_ptn_options = list(DATA_MASTER_PTN_PRODI.keys())
+        selected_prov_ptn = st.selectbox("1. Pilih Provinsi PTN Target", provinsi_ptn_options, index=0)
+
+    with col_target_2:
+        # 2. Filter Nama PTN di Provinsi Tersebut
+        ptn_in_prov_options = list(DATA_MASTER_PTN_PRODI[selected_prov_ptn].keys())
+        selected_ptn = st.selectbox("2. Pilih Nama PTN", ptn_in_prov_options, index=0)
+
+    with col_target_3:
+        # 3. Filter Nama Prodi di PTN Tersebut
+        prodi_in_ptn_options = list(DATA_MASTER_PTN_PRODI[selected_prov_ptn][selected_ptn].keys())
+        selected_prodi = st.selectbox("3. Pilih Program Studi / Fakultas", prodi_in_ptn_options, index=0)
+
+    # Ekstraksi Detail Otomatis
+    detail_prodi = DATA_MASTER_PTN_PRODI[selected_prov_ptn][selected_ptn][selected_prodi]
+    selected_strata = detail_prodi["strata"]
+    selected_daya_tampung = detail_prodi["daya_tampung"]
+    required_mapel_1 = detail_prodi["mapel_1"]
+    required_mapel_2 = detail_prodi["mapel_2"]
+    auto_porto_req = detail_prodi["porto"]
+
+    st.divider()
+
+    # Display Informasi Detail Hasil Auto-Lookup
+    st.markdown("#### 📋 Info Kuota & Persyaratan Resmi SNBP")
+    info_col1, info_col2, info_col3, info_col4 = st.columns(4)
+
+    info_col1.metric("Jenjang / Strata", selected_strata)
+    info_col2.metric("Daya Tampung SNBP", f"{selected_daya_tampung} Kursi")
+    info_col3.metric("Mapel Peminatan Utama 1", required_mapel_1)
+    info_col4.metric("Mapel Peminatan Utama 2", required_mapel_2)
+
+    if auto_porto_req:
+        st.warning("🎨 **Status Portofolio:** Program Studi ini **WAJIB** melampirkan Portofolio Karya/Praktik.")
+    else:
+        st.info("ℹ️ **Status Portofolio:** Program Studi ini **TIDAK** memerlukan portofolio tambahan.")
+
+# --- TAB 2: NILAI RAPOR, TKA, DAN PORTOFOLIO ---
+with tab2:
     st.markdown("### 1. Input Nilai Rapor Semester 1 s/d 5")
     c1, c2, c3, c4, c5 = st.columns(5)
     sem1 = c1.number_input("Semester 1", 0.0, 100.0, 83.0, 0.5)
@@ -227,45 +296,35 @@ with tab1:
 
     st.divider()
 
-    # SECTION 2: MAPEL TKA
-    st.markdown(f"### 2. Mata Pelajaran TKA / Peminatan ({jenjang_sekolah})")
-    daftar_peminatan = MAPEL_TKA[jenjang_sekolah]
+    # SECTION 2: MAPEL TKA (OTOMATIS TERSINKRON DENGAN SYARAT PRODI)
+    st.markdown("### 2. Nilai Mata Pelajaran Peminatan / TKA Siswa")
+    st.caption(f"Mapel yang direkomendasikan untuk **{selected_prodi}**: **{required_mapel_1}** & **{required_mapel_2}**.")
 
     col_m1, col_m2 = st.columns(2)
     with col_m1:
-        mapel_1 = st.selectbox("Mapel Peminatan 1", daftar_peminatan, index=0)
+        # Default disesuaikan dengan mapel syarat prodi
+        idx_m1 = MAPEL_TKA_LIST.index(required_mapel_1) if required_mapel_1 in MAPEL_TKA_LIST else 0
+        mapel_1 = st.selectbox("Mapel Peminatan 1", MAPEL_TKA_LIST, index=idx_m1)
         n_mapel_1 = st.number_input(f"Nilai Rata-Rata {mapel_1}", 0.0, 100.0, 90.0, 0.5)
+
     with col_m2:
-        idx_default_2 = 1 if len(daftar_peminatan) > 1 else 0
-        mapel_2 = st.selectbox("Mapel Peminatan 2", daftar_peminatan, index=idx_default_2)
+        idx_m2 = MAPEL_TKA_LIST.index(required_mapel_2) if required_mapel_2 in MAPEL_TKA_LIST else 1
+        mapel_2 = st.selectbox("Mapel Peminatan 2", MAPEL_TKA_LIST, index=idx_m2)
         n_mapel_2 = st.number_input(f"Nilai Rata-Rata {mapel_2}", 0.0, 100.0, 88.0, 0.5)
 
     st.divider()
 
-    # SECTION 3: INTEGRASI PORTOFOLIO (TIDAK LAGI JADI MENU TERPISAH)
+    # SECTION 3: INTEGRASI PORTOFOLIO
     st.markdown("### 3. Integrasi Portofolio Karya (Khusus Seni & Olahraga)")
     butuh_porto = st.checkbox(
-        "Prodi Target Mensyaratkan Portofolio? (DKV, Seni Rupa, Olahraga, Musik, Tari, dll.)",
-        value=False
+        "Prodi Target Mensyaratkan Portofolio?",
+        value=auto_porto_req
     )
 
     skor_porto = 0.0
     if butuh_porto:
         col_po1, col_po2 = st.columns(2)
         with col_po1:
-            kategori_porto = st.selectbox(
-                "Kategori Portofolio",
-                [
-                    "Seni Rupa, Desain, dan Kriya (DKV/Seni Murni)",
-                    "Olahraga & Pendidikan Jasmani",
-                    "Tari",
-                    "Musik",
-                    "Teater & Seni Pertunjukan",
-                    "Fotografi",
-                ],
-            )
-            
-            # Tombol Upload Portofolio
             uploaded_file = st.file_uploader(
                 "Unggah File Portofolio (PDF / ZIP / MP4 / JPG / PNG)",
                 type=["pdf", "zip", "mp4", "jpg", "png"],
@@ -279,31 +338,9 @@ with tab1:
                 "Estimasi Skor Evaluasi Portofolio (0 s/d 100)",
                 min_value=0.0, max_value=100.0, value=85.0, step=1.0
             )
-            st.caption("ℹ️ *Catatan: File portofolio yang diunggah hanya digunakan untuk evaluasi internal dan tidak ikut diunduh ke dalam PDF Laporan.*")
-
-# --- TAB 2: TARGET PTN / ITB ENGINE ---
-with tab2:
-    st.markdown("### Pemilihan PTN, Strata, & Daya Tampung")
-    
-    col_p1, col_p2 = st.columns(2)
-    with col_p1:
-        is_itb = st.checkbox("Pilih Institut Teknologi Bandung (ITB)", value=True)
-        
-    with col_p2:
-        if is_itb:
-            ptn_target = "Institut Teknologi Bandung (ITB)"
-            prodi_target = st.selectbox("Pilih Fakultas / Sekolah ITB (TPB)", list(DATA_ITB_FAKULTAS.keys()))
-            strata = "S1"
-            daya_tampung = DATA_ITB_FAKULTAS[prodi_target]["daya_tampung"]
-            st.info(f"🏛️ **ITB - {prodi_target}:** Strata `{strata}`, Daya Tampung SNBP `{daya_tampung} Kursi`.")
-        else:
-            ptn_target = st.text_input("Nama PTN Target", value="Universitas Indonesia")
-            prodi_target = st.text_input("Nama Program Studi", value="Teknik Informatika")
-            strata = st.radio("Jenjang Studi", ["S1 (Akademik)", "D4 (Sarjana Terapan)", "D3 (Diploma)"], horizontal=True)
-            daya_tampung = st.number_input("Daya Tampung SNBP", 1, 500, 60, 1)
 
 # ==========================================
-# 7. EXECUTION ENGINE & PDF GENERATOR
+# 6. EXECUTION ENGINE & PDF GENERATOR
 # ==========================================
 st.divider()
 
@@ -316,7 +353,9 @@ if st.button("🚀 Jalankan Analisis Kelolosan SNBP", type="primary", use_contai
     margin_kkm = max(0.0, rata_sem - kkm_rapor)
     indeks_alumni = min(100.0, (sebaran_alumni * 15.0) + bobot_akreditasi + (margin_kkm * 1.5))
     
-    s_total = (0.50 * s_berkas) + (0.35 * indeks_alumni) + (15.0)
+    # Perhitungan keketatan dinamis dari daya tampung
+    keketatan_score = min(90.0, max(50.0, selected_daya_tampung * 0.6))
+    s_total = (0.50 * s_berkas) + (0.35 * indeks_alumni) + (0.15 * keketatan_score)
     
     st.markdown("### 📊 Ringkasan Skor Kelayakan SNBP")
     res1, res2, res3, res4 = st.columns(4)
@@ -329,7 +368,7 @@ if st.button("🚀 Jalankan Analisis Kelolosan SNBP", type="primary", use_contai
     
     if s_total >= 85.0:
         status_zone = "🟢 SAFE ZONE (Sangat Aman)"
-        st.success(f"**{status_zone}:** Peluang kelolosan tinggi untuk **{nama_siswa}** pada **{prodi_target} ({strata})** di **{ptn_target}**.")
+        st.success(f"**{status_zone}:** Peluang kelolosan sangat tinggi untuk **{nama_siswa}** pada **{selected_prodi} ({selected_strata})** di **{selected_ptn}**.")
     elif s_total >= 75.0:
         status_zone = "🟡 RATIONAL ZONE (Prospektif)"
         st.warning(f"**{status_zone}:** Peluang cukup rasional. Pastikan Pilihan 2 disiapkan jaring pengaman se-provinsi.")
@@ -337,14 +376,14 @@ if st.button("🚀 Jalankan Analisis Kelolosan SNBP", type="primary", use_contai
         status_zone = "🔴 HIGH RISK (Risiko Tinggi)"
         st.error(f"**{status_zone}:** Skor total di bawah ambang aman. Disarankan *pivot* prodi atau beralih ke Vokasi.")
 
-    catatan_snbp = f"Analisis dilakukan berdasarkan Kurikulum Merdeka. Nilai Rapor Rata-Rata: {rata_sem:.2f}. "
-    if provinsi_sekolah == "DKI Jakarta" and is_commuter and ("ITB" in ptn_target or "UI" in ptn_target):
-        catatan_snbp += "Sesuai aturan SNBP, karena Pilihan 1 berada di luar DKI Jakarta, Pilihan 2 WAJIB memilih PTN di DKI Jakarta (UNJ/UPNVJ)."
+    catatan_snbp = f"Analisis Kurikulum Merdeka. Rata-Rata Rapor: {rata_sem:.2f}. Mapel Pendukung Utama: {required_mapel_1} & {required_mapel_2}. "
+    if provinsi_sekolah == "DKI Jakarta" and is_commuter and selected_prov_ptn != "DKI Jakarta":
+        catatan_snbp += "Sesuai aturan SNBP, karena Pilihan 1 di luar DKI Jakarta, Pilihan 2 WAJIB memilih PTN di DKI Jakarta (UNJ/UPNVJ)."
 
-    # GENERATE PDF BYTES (HANYA MENGAMBIL METRIK DAN SKOR, TANPA BERKAS PORTOFOLIO)
+    # GENERATE PDF BYTES
     pdf_bytes = generate_pdf_report(
-        nama_siswa, sekolah_asal, provinsi_sekolah, ptn_target, prodi_target, 
-        strata, s_rapor, s_total, status_zone, catatan_snbp
+        nama_siswa, sekolah_asal, provinsi_sekolah, selected_ptn, selected_prodi, 
+        selected_strata, s_rapor, s_total, status_zone, catatan_snbp
     )
 
     st.divider()
@@ -357,4 +396,4 @@ if st.button("🚀 Jalankan Analisis Kelolosan SNBP", type="primary", use_contai
         mime="application/pdf",
         type="primary"
     )
-    st.caption("🖨️ *Setelah file PDF diunduh, buka file tersebut dan tekan **Ctrl + P** (atau **Cmd + P** di Mac) untuk mencetak Laporan Rekomendasi.*")
+    st.caption("🖨️ *Buka file PDF yang terunduh dan tekan **Ctrl + P** (atau **Cmd + P** di Mac) untuk mencetak Laporan Rekomendasi.*")
