@@ -1,111 +1,427 @@
+import pandas as pd
 import streamlit as st
 
+# ==========================================
 # 1. KONFIGURASI HALAMAN UTAMA
+# ==========================================
 st.set_page_config(
-    page_title="Rekomendasi PTN SNBP - Nurul Fikri",
+    page_title="Simulator SNBP 38 Provinsi - Nurul Fikri",
     page_icon="🎓",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-# Title & Deskripsi
-st.title("🎓 Simulator Rekomendasi PTN SNBP")
-st.subheader("Kurikulum Merdeka — Rumpun S1 & Vokasi (D4/D3)")
-st.caption("Aplikasi Analisis Kelolosan & Mitigasi Risiko Siswa - Nurul Fikri")
+st.title("🎓 Simulator Rekomendasi PTN SNBP (38 Provinsi)")
+st.caption(
+    "Analisis Kelolosan SNBP Kurikulum Merdeka & Vokasi — PTN Resmi SNPMB"
+)
 st.divider()
 
-# 2. SIDEBAR: DATA SISWA & PREFERENSI LOKASI
-st.sidebar.header("👤 Profile Siswa & Sekolah")
-nama_siswa = st.sidebar.text_input("Nama Siswa", "Ahmad Fikri")
-asal_provinsi = st.sidebar.selectbox(
-    "Provinsi Sekolah Asal", 
-    ["DKI Jakarta", "Jawa Barat", "Jawa Tengah", "Jawa Timur", "Lainnya"]
+# ==========================================
+# 2. DATA MASTER 38 PROVINSI & PTN SNPMB
+# ==========================================
+DATA_PTN_38_PROVINSI = {
+    "Aceh": [
+        "Universitas Syiah Kuala (USK)",
+        "Universitas Malikussaleh (UNIMAL)",
+        "Universitas Teuku Umar (UTU)",
+        "Universitas Samudra (UNSAM)",
+        "ISBI Aceh",
+        "Politeknik Negeri Lhokseumawe",
+        "UIN Ar-Raniry",
+    ],
+    "Sumatera Utara": [
+        "Universitas Sumatera Utara (USU)",
+        "Universitas Negeri Medan (UNIMED)",
+        "Politeknik Negeri Medan",
+        "UIN Sumatera Utara",
+    ],
+    "Sumatera Barat": [
+        "Universitas Andalas (UNAND)",
+        "Universitas Negeri Padang (UNP)",
+        "ISI Padangpanjang",
+        "Politeknik Negeri Padang",
+        "Politeknik Pertanian Negeri Payakumbuh",
+        "UIN Imam Bonjol",
+    ],
+    "Riau": [
+        "Universitas Riau (UNRI)",
+        "UIN Sultan Syarif Kasim (UIN Suska)",
+        "Politeknik Negeri Bengkalis",
+    ],
+    "Kepulauan Riau": [
+        "Universitas Maritim Raja Ali Haji (UMRAH)",
+        "Politeknik Negeri Batam",
+    ],
+    "Jambi": ["Universitas Jambi (UNJA)", "UIN Sulthan Thaha Saifuddin"],
+    "Sumatera Selatan": [
+        "Universitas Sriwijaya (UNSRI)",
+        "Politeknik Negeri Sriwijaya",
+        "UIN Raden Fatah",
+    ],
+    "Bangka Belitung": [
+        "Universitas Bangka Belitung (UBB)",
+        "Politeknik Manufaktur Negeri Bangka Belitung",
+    ],
+    "Bengkulu": ["Universitas Bengkulu (UNIB)", "UIN Fatmawati Sukarno"],
+    "Lampung": [
+        "Universitas Lampung (UNILA)",
+        "Institut Teknologi Sumatera (ITERA)",
+        "Politeknik Negeri Lampung",
+        "UIN Raden Intan",
+    ],
+    "DKI Jakarta": [
+        "Universitas Negeri Jakarta (UNJ)",
+        "UPN Veteran Jakarta (UPNVJ)",
+        "UIN Syarif Hidayatullah Jakarta",
+    ],
+    "Jawa Barat": [
+        "Universitas Indonesia (UI)",
+        "Institut Teknologi Bandung (ITB)",
+        "Universitas Padjadjaran (UNPAD)",
+        "IPB University (SV & S1)",
+        "ISBI Bandung",
+        "Politeknik Negeri Bandung (POLBAN)",
+        "Politeknik Negeri Subang",
+        "Politeknik Negeri Indramayu",
+        "UIN Sunan Gunung Djati",
+    ],
+    "Jawa Tengah": [
+        "Universitas Diponegoro (UNDIP)",
+        "Universitas Sebelas Maret (UNS)",
+        "Universitas Negeri Semarang (UNNES)",
+        "Universitas Jenderal Soedirman (UNSOED)",
+        "ISI Surakarta",
+        "Politeknik Negeri Semarang (POLINES)",
+        "Politeknik Negeri Cilacap",
+        "UIN Walisongo",
+        "UIN Raden Mas Said",
+    ],
+    "DI Yogyakarta": [
+        "Universitas Gadjah Mada (UGM)",
+        "Universitas Negeri Yogyakarta (UNY)",
+        "UPN Veteran Yogyakarta (UPNYK)",
+        "ISI Yogyakarta",
+        "UIN Sunan Kalijaga",
+    ],
+    "Jawa Timur": [
+        "Universitas Airlangga (UNAIR)",
+        "Institut Teknologi Sepuluh Nopember (ITS)",
+        "Universitas Brawijaya (UB)",
+        "Universitas Negeri Malang (UM)",
+        "Universitas Jember (UNEJ)",
+        "UPN Veteran Jawa Timur",
+        "Universitas Trunojoyo Madura (UTM)",
+        "Politeknik Negeri Malang (POLINEMA)",
+        "Politeknik Negeri Jember (POLIJE)",
+        "Politeknik Perkapalan Negeri Surabaya (PPNS)",
+        "Politeknik Elektronika Negeri Surabaya (PENS)",
+        "UIN Sunan Ampel",
+        "UIN Maulana Malik Ibrahim",
+    ],
+    "Banten": ["Universitas Sultan Ageng Tirtayasa (UNTIRTA)", "UIN SMH Banten"],
+    "Bali": [
+        "Universitas Udayana (UNUD)",
+        "Universitas Pendidikan Ganesha (UNDIKSHA)",
+        "ISI Denpasar",
+        "Politeknik Negeri Bali",
+    ],
+    "Nusa Tenggara Barat": [
+        "Universitas Mataram (UNRAM)",
+        "UIN Mataram",
+    ],
+    "Nusa Tenggara Timur": [
+        "Universitas Nusa Cendana (UNDANA)",
+        "Politeknik Negeri Kupang",
+        "Politeknik Pertanian Negeri Kupang",
+    ],
+    "Kalimantan Barat": [
+        "Universitas Tanjungpura (UNTAN)",
+        "Politeknik Negeri Pontianak",
+        "Politeknik Negeri Sambas",
+        "Politeknik Negeri Ketapang",
+    ],
+    "Kalimantan Tengah": [
+        "Universitas Palangka Raya (UPR)",
+        "IAIN Palangka Raya",
+    ],
+    "Kalimantan Selatan": [
+        "Universitas Lambung Mangkurat (ULM)",
+        "Politeknik Negeri Banjarmasin",
+        "Politeknik Negeri Tanah Laut",
+    ],
+    "Kalimantan Timur": [
+        "Universitas Mulawarman (UNMUL)",
+        "Institut Teknologi Kalimantan (ITK)",
+        "Politeknik Negeri Samarinda",
+        "Politeknik Pertanian Negeri Samarinda",
+    ],
+    "Kalimantan Utara": ["Universitas Borneo Tarakan (UBT)"],
+    "Sulawesi Utara": [
+        "Universitas Sam Ratulangi (UNSRAT)",
+        "Universitas Negeri Manado (UNIMA)",
+        "Politeknik Negeri Manado",
+        "Politeknik Negeri Nusa Utara",
+    ],
+    "Sulawesi Tengah": ["Universitas Tadulako (UNTAD)", "UIN Datokarama"],
+    "Sulawesi Selatan": [
+        "Universitas Hasanuddin (UNHAS)",
+        "Universitas Negeri Makassar (UNM)",
+        "Politeknik Negeri Ujung Pandang",
+        "Politeknik Pertanian Negeri Pangkajene Kepulauan",
+        "UIN Alauddin",
+    ],
+    "Sulawesi Tenggara": ["Universitas Halu Oleo (UHO)", "IAIN Kendari"],
+    "Gorontalo": ["Universitas Negeri Gorontalo (UNG)"],
+    "Sulawesi Barat": ["Universitas Sulawesi Barat (UNSULBAR)"],
+    "Maluku": [
+        "Universitas Pattimura (UNPATTI)",
+        "Politeknik Negeri Ambon",
+        "Politeknik Perikanan Negeri Tual",
+    ],
+    "Maluku Utara": ["Universitas Khairun (UNKHAIR)"],
+    "Papua": ["Universitas Cenderawasih (UNCEN)", "ISBI Tanah Papua"],
+    "Papua Barat": [
+        "Universitas Papua (UNIPA)",
+        "Politeknik Negeri Fakfak",
+    ],
+    "Papua Barat Daya": [
+        "Universitas Papua (Kampus Sorong)",
+        "IAIN Sorong",
+    ],
+    "Papua Tengah": ["Universitas Cenderawasih (PDD Nabire)"],
+    "Papua Pegunungan": ["Universitas Cenderawasih (PDD Jayawijaya)"],
+    "Papua Selatan": ["Universitas Musamus Merauke (UNMUS)"],
+}
+
+# ==========================================
+# 3. SIDEBAR: PROFIL SEKOLAH & ALUMNI
+# ==========================================
+st.sidebar.header("🏫 Data Sekolah & Alumni")
+
+akreditasi_sekolah = st.sidebar.selectbox(
+    "Akreditasi Sekolah", ["A (Unggul)", "B (Baik)", "C (Cukup)"], index=0
+)
+kkm_rapor = st.sidebar.number_input(
+    "Nilai KKM Rapor Sekolah",
+    min_value=60.0,
+    max_value=90.0,
+    value=75.0,
+    step=0.5,
+)
+sebaran_alumni = st.sidebar.number_input(
+    "Jumlah Sebaran Alumni di PTN Target (3 Thn Terakhir)",
+    min_value=0,
+    max_value=100,
+    value=3,
+    step=1,
 )
 
 st.sidebar.divider()
-st.sidebar.header("⚙️ Preferensi Khusus")
 is_commuter = st.sidebar.checkbox(
-    "Preferensi Commuter (Tidak Ingin Kos)", 
-    value=True,
-    help="Aktifkan jika siswa hanya ingin kuliah di PTN yang terjangkau transportasi harian."
+    "Preferensi Commuter (Tanpa Kos)", value=True
 )
 
-# 3. AREA INPUT FORM UTAMA
-col_left, col_right = st.columns(2)
+# ==========================================
+# 4. AREA FORM UTAMA (TABS)
+# ==========================================
+tab1, tab2, tab3 = st.tabs(
+    ["📚 Nilai Rapor (Sem 1-5)", "🎯 Target PTN 38 Provinsi", "🎨 Portofolio Karya"]
+)
 
-with col_left:
-    st.markdown("### 📚 1. Nilai Rapor & Peminatan")
-    n_wajib = st.number_input(
-        "Rata-Rata Nilai Mapel Wajib (Sem 1-5)", 
-        min_value=0.0, max_value=100.0, value=85.0, step=0.5
-    )
-    
-    st.markdown("**Mata Pelajaran Peminatan Utama:**")
-    mapel_1 = st.selectbox(
-        "Mapel Peminatan 1", 
-        ["Matematika Lanjut", "Informatika", "Fisika", "Sosiologi", "Ekonomi", "Bahasa Inggris Lanjut", "Seni Rupa"]
-    )
-    n_mapel_1 = st.number_input(f"Nilai {mapel_1}", min_value=0.0, max_value=100.0, value=90.0, step=0.5)
-    
-    mapel_2 = st.selectbox(
-        "Mapel Peminatan 2", 
-        ["Informatika", "Matematika Lanjut", "Fisika", "Sosiologi", "Ekonomi", "Bahasa Inggris Lanjut", "Seni Rupa"]
-    )
-    n_mapel_2 = st.number_input(f"Nilai {mapel_2}", min_value=0.0, max_value=100.0, value=88.0, step=0.5)
+# --- TAB 1: INPUT NILAI RAPOR SEMESTER 1 - 5 ---
+with tab1:
+    st.subheader("Input Rata-Rata Nilai Rapor Semester 1 s/d 5")
+    st.caption("Masukkan nilai rata-rata pengetahuan untuk seluruh mata pelajaran per semester.")
 
-with col_right:
-    st.markdown("### 🎯 2. Target PTN & Indeks Sekolah")
-    ptn_target = st.selectbox(
-        "PTN Target (Pilihan 1)", 
-        [
-            "Universitas Indonesia (UI) - Jawa Barat", 
-            "Universitas Negeri Jakarta (UNJ) - DKI Jakarta", 
-            "UPN Veteran Jakarta (UPNVJ) - DKI Jakarta", 
-            "Institut Teknologi Bandung (ITB) - Jawa Barat", 
-            "Politeknik Negeri Jakarta (PNJ) - Jawa Barat",
-            "IPB University (SV IPB) - Jawa Barat"
-        ]
-    )
-    prodi_target = st.text_input("Nama Prodi / Fakultas", "Teknik Informatika / STEI-K")
-    
-    st.markdown("**Variabel Indeks Sekolah:**")
-    indeks_alumni = st.slider("Indeks Alumni Sekolah di PTN ini (0-100)", 0, 100, 75)
-    keketatan = st.slider("Indeks Keketatan Prodi Target (0-100)", 0, 100, 70)
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+        sem1 = st.number_input(
+            "Semester 1", min_value=0.0, max_value=100.0, value=83.0, step=0.5
+        )
+    with c2:
+        sem2 = st.number_input(
+            "Semester 2", min_value=0.0, max_value=100.0, value=84.0, step=0.5
+        )
+    with c3:
+        sem3 = st.number_input(
+            "Semester 3", min_value=0.0, max_value=100.0, value=85.5, step=0.5
+        )
+    with c4:
+        sem4 = st.number_input(
+            "Semester 4", min_value=0.0, max_value=100.0, value=87.0, step=0.5
+        )
+    with c5:
+        sem5 = st.number_input(
+            "Semester 5", min_value=0.0, max_value=100.0, value=88.5, step=0.5
+        )
 
-# 4. BOTON DAN LOGIKA KALKULASI SCORING
+    rata_sem_1_5 = (sem1 + sem2 + sem3 + sem4 + sem5) / 5.0
+    st.info(f"📈 **Rata-Rata Rapor Umum (Sem 1-5):** `{rata_sem_1_5:.2f}`")
+
+    st.subheader("Mata Pelajaran Peminatan Utama")
+    col_m1, col_m2 = st.columns(2)
+    list_mapel = [
+        "Matematika Lanjut",
+        "Informatika",
+        "Fisika",
+        "Kimia",
+        "Biologi",
+        "Sosiologi",
+        "Ekonomi",
+        "Geografi",
+        "Bahasa Inggris Lanjut",
+        "Seni Rupa",
+        "PJOK",
+    ]
+    with col_m1:
+        mapel_1 = st.selectbox("Mapel Peminatan 1", list_mapel, index=0)
+        n_mapel_1 = st.number_input(
+            f"Nilai Rata-Rata {mapel_1}",
+            min_value=0.0,
+            max_value=100.0,
+            value=90.0,
+            step=0.5,
+        )
+    with col_m2:
+        mapel_2 = st.selectbox("Mapel Peminatan 2", list_mapel, index=1)
+        n_mapel_2 = st.number_input(
+            f"Nilai Rata-Rata {mapel_2}",
+            min_value=0.0,
+            max_value=100.0,
+            value=88.0,
+            step=0.5,
+        )
+
+# --- TAB 2: PILIH PROVINSI & PTN TARGET ---
+with tab2:
+    st.subheader("Pemilihan PTN & Prodi Berdasarkan Provinsi SNPMB")
+
+    col_prov, col_ptn = st.columns(2)
+    with col_prov:
+        provinsi_sekolah = st.selectbox(
+            "1. Provinsi Sekolah Asal Siswa",
+            list(DATA_PTN_38_PROVINSI.keys()),
+            index=10,  # Default DKI Jakarta
+        )
+        provinsi_ptn_target = st.selectbox(
+            "2. Provinsi PTN Target",
+            list(DATA_PTN_38_PROVINSI.keys()),
+            index=11,  # Default Jawa Barat
+        )
+
+    with col_ptn:
+        daftar_ptn_tersedia = DATA_PTN_38_PROVINSI[provinsi_ptn_target]
+        ptn_terpilih = st.selectbox("3. Pilih PTN Target", daftar_ptn_tersedia)
+        prodi_terpilih = st.text_input(
+            "4. Nama Program Studi Target", value="Teknik Informatika"
+        )
+        jenjang_prodi = st.radio(
+            "Jenjang Studi", ["S1 (Akademik)", "D4 (Sarjana Terapan)", "D3 (Diploma)"], horizontal=True
+        )
+
+# --- TAB 3: UPLOAD PORTOFOLIO ---
+with tab3:
+    st.subheader("Upload & Penilaian Portofolio (Khusus Seni & Olahraga)")
+    butuh_portofolio = st.checkbox(
+        "Prodi Target Mensyaratkan Portofolio? (DKV, Seni Rupa, Olahraga, Musik, Tari, dll.)"
+    )
+
+    skor_portofolio = 0.0
+    if butuh_portofolio:
+        kategori_porto = st.selectbox(
+            "Kategori Portofolio",
+            [
+                "Seni Rupa, Desain, dan Kriya (DKV/Seni Murni)",
+                "Olahraga & Pendidikan Jasmani",
+                "Tari",
+                "Musik",
+                "Teater & Seni Pertunjukan",
+                "Fotografi",
+                "Etnomusikologi",
+            ],
+        )
+
+        uploaded_file = st.file_uploader(
+            "Unggah File Portofolio (PDF / ZIP / MP4)",
+            type=["pdf", "zip", "mp4", "jpg", "png"],
+            help="Unggah draf karya atau video praktik untuk review konselor/mentor.",
+        )
+
+        if uploaded_file is not None:
+            st.success(
+                f"✅ Berkas `{uploaded_file.name}` berhasil diunggah! Berkas akan ditinjau oleh mentor spesialis."
+            )
+
+        skor_portofolio = st.number_input(
+            "Estimasi Skor Evaluasi Portofolio (0 s/d 100)",
+            min_value=0.0,
+            max_value=100.0,
+            value=85.0,
+            step=1.0,
+        )
+
+# ==========================================
+# 5. EXECUTION ENGINE & KALKULASI SKOR
+# ==========================================
 st.divider()
-if st.button("🚀 Jalankan Analisis Kelolosan", type="primary", use_container_width=True):
-    
-    # Formula Rata-Rata Rapor (50% Umum + 50% Pendukung)
-    n_seluruh = (n_wajib + n_mapel_1 + n_mapel_2) / 3
-    n_pendukung = (n_mapel_1 + n_mapel_2) / 2
-    s_rapor = (0.50 * n_seluruh) + (0.50 * n_pendukung)
-    
-    # Formula Skor Total SNBP (50% Rapor + 35% Alumni + 15% Keketatan)
-    s_total = (0.50 * s_rapor) + (0.35 * indeks_alumni) + (0.15 * keketatan)
-    
-    # Display Metrik Hasil Perhitungan
-    st.markdown("### 📊 Ringkasan Skor Kelayakan")
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Rata Umum Rapor", f"{n_seluruh:.2f}")
-    m2.metric("Rata Mapel Pendukung", f"{n_pendukung:.2f}")
-    m3.metric("Skor Rapor (S_rapor)", f"{s_rapor:.2f}")
-    m4.metric("SKOR TOTAL (S_total)", f"{s_total:.2f}")
-    
-    st.divider()
-    
-    # Penentuan Risk Zone Status
-    if s_total >= 85.0:
-        st.success(f"🟢 **SAFE ZONE (Sangat Aman):** Peluang kelolosan tinggi untuk **{nama_siswa}** pada prodi **{prodi_target}** di **{ptn_target}**.")
-    elif s_total >= 75.0:
-        st.warning(f"🟡 **RATIONAL ZONE (Prospektif):** Peluang rasional. Pastikan Pilihan 2 disiapkan jaring pengaman (Safe Zone se-provinsi / Vokasi).")
-    else:
-        st.error(f"🔴 **HIGH RISK (Risiko Tinggi):** Skor total belum memenuhi ambang aman. Disarankan melakukan *pivot* prodi/PTN atau beralih ke jenjang Vokasi (D4/D3).")
 
-    # Peringatan Khusus Aturan Commuter & Aturan Provinsi DKI Jakarta
-    if asal_provinsi == "DKI Jakarta" and is_commuter:
-        if "UI" in ptn_target or "PNJ" in ptn_target or "ITB" in ptn_target:
+if st.button("🚀 Jalankan Analisis Kelolosan SNBP", type="primary", use_container_width=True):
+
+    # 1. Perhitungan Mapel Pendukung & Skor Rapor (50% Rata Umum + 50% Pendukung)
+    n_pendukung = (n_mapel_1 + n_mapel_2) / 2.0
+    s_rapor = (0.50 * rata_sem_1_5) + (0.50 * n_pendukung)
+
+    # 2. Koreksi Nilai KKM Rapor (Bonus jika rata-rata jauh di atas KKM)
+    margin_kkm = max(0.0, rata_sem_1_5 - kkm_rapor)
+
+    # 3. Kalkulasi Skor Berkas (Jika ada Portofolio, Bobot 50% Rapor : 50% Porto)
+    if butuh_portofolio:
+        s_berkas = (0.50 * s_rapor) + (0.50 * skor_portofolio)
+    else:
+        s_berkas = s_rapor
+
+    # 4. Formulasi Indeks Alumni (Akreditasi + Sebaran Alumni)
+    bobot_akreditasi = (
+        25.0 if "A" in akreditasi_sekolah else (15.0 if "B" in akreditasi_sekolah else 5.0)
+    )
+    indeks_alumni = min(100.0, (sebaran_alumni * 15.0) + bobot_akreditasi + (margin_kkm * 1.5))
+
+    # 5. Keketatan Default Assumed Score (80.0)
+    keketatan_score = 75.0
+
+    # 6. SKOR TOTAL AKHIR (50% Berkas + 35% Alumni + 15% Keketatan)
+    s_total = (0.50 * s_berkas) + (0.35 * indeks_alumni) + (0.15 * keketatan_score)
+
+    # Output Metric Cards
+    st.markdown("### 📊 Ringkasan Skor Kelayakan SNBP")
+    res1, res2, res3, res4 = st.columns(4)
+    res1.metric("Rata Rapor Sem 1-5", f"{rata_sem_1_5:.2f}")
+    res2.metric("Rata Mapel Pendukung", f"{n_pendukung:.2f}")
+    res3.metric("Skor Berkas Akhir", f"{s_berkas:.2f}")
+    res4.metric("SKOR TOTAL (S_total)", f"{s_total:.2f}")
+
+    st.divider()
+
+    # Dynamic Risk Category Display
+    if s_total >= 85.0:
+        st.success(
+            f"🟢 **SAFE ZONE (Sangat Aman):** Peluang kelolosan tinggi untuk prodi **{prodi_terpilih} ({jenjang_prodi})** di **{ptn_terpilih}**."
+        )
+    elif s_total >= 75.0:
+        st.warning(
+            f"🟡 **RATIONAL ZONE (Prospektif):** Peluang cukup rasional. Pastikan Pilihan 2 disiapkan jaring pengaman D4/D3 se-provinsi."
+        )
+    else:
+        st.error(
+            f"🔴 **HIGH RISK (Risiko Tinggi):** Skor total di bawah ambang batas aman. Disarankan melakukan *pivot* prodi atau beralih ke jenjang Vokasi."
+        )
+
+    # Validasi Aturan Lokasi Provinsi SNBP
+    if provinsi_sekolah == "DKI Jakarta" and is_commuter:
+        if provinsi_ptn_target != "DKI Jakarta":
             st.info(
-                "💡 **Catatan Aturan SNBP untuk Siswa DKI Jakarta:**\n"
-                f"PTN pilihan Anda ({ptn_target}) secara administratif berlokasi di **luar Provinsi DKI Jakarta**.\n\n"
-                " Sesuai aturan SNBP, jika Anda mengambil 2 pilihan, maka **Pilihan 2 WAJIB memilih PTN di DKI Jakarta** (misal: UNJ atau UPNVJ)."
+                f"💡 **Peringatan Aturan Provinsi SNBP:**\n"
+                f"PTN Target Anda ({ptn_terpilih}) berlokasi di **{provinsi_ptn_target}**. Sesuai aturan resmi SNBP, karena sekolah Anda berada di **DKI Jakarta**, "
+                f"maka Pilihan 2 **WAJIB** memilih PTN yang berlokasi di **DKI Jakarta** (UNJ atau UPNVJ)."
             )
